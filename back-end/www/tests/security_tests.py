@@ -61,7 +61,9 @@ class SecurityTest(BasicTest):
             user_id=self.user_1.id, question_id=self.choice_question.id)
 
         self.mood = vision_operations.create_mood("happy")
-        medias = [{"url": "http://img", "description": "d", "type": "IMAGE"}]
+        # Use a VIDEO media (with url, no unsplash fields) to keep the fixture
+        # simple; IMAGE media would require unsplash_image_id and friends.
+        medias = [{"url": "http://img", "description": "d", "type": "VIDEO"}]
         self.vision_1 = vision_operations.create_vision(
             mood_id=self.mood.id, medias=medias,
             user_id=self.user_1.id, scenario_id=self.scenario_1.id)

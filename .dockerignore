@@ -1,0 +1,14 @@
+# Build context for the web image is the repository root. Keep it small and,
+# critically, keep secrets and the production data dump out of the image.
+.git
+.gitignore
+COCTEAU/
+back-end/
+!front-end/
+**/secret/
+**/*.sql
+**/__pycache__/
+**/*.pyc
+**/.DS_Store
+*.log*
+.env

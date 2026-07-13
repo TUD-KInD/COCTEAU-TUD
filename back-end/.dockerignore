@@ -1,0 +1,9 @@
+# Build context for the api image is ./back-end.
+# Secrets are mounted at runtime, never baked into the image.
+secret/
+log/
+**/__pycache__/
+**/*.pyc
+**/*.csv
+**/.DS_Store
+*.log*

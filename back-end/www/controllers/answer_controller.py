@@ -7,6 +7,7 @@ from flask import make_response
 from util.util import InvalidUsage
 from util.util import handle_invalid_usage
 from util.util import decode_user_token
+from util.util import authorize_user_scoped_access
 from util.util import try_wrap_response
 from config.config import config
 from models.model_operations.answer_operations import get_all_answers
@@ -83,10 +84,6 @@ def answer():
     if request.method == "GET":
         # Get all answers or get one answer by its ID
         # Also get answers by question, user, topic, or scenario ID
-        is_admin = False
-        if "user_token" in request.args:
-            error, user_json = decode_user_token(request.args, config.JWT_PRIVATE_KEY, check_if_admin=False)
-            is_admin = user_json["client_type"] == 0
         question_id = request.args.get("question_id")
         scenario_id = request.args.get("scenario_id")
         topic_id = request.args.get("topic_id")
@@ -97,6 +94,21 @@ def answer():
         tn = topic_id is None
         un = user_id is None
         an = answer_id is None
+        # Authorization:
+        # - User-scoped reads (user_id present) require a valid token belonging
+        #   to that user or to an admin. This closes the user enumeration / IDOR
+        #   hole where anyone could read another user's answers by guessing IDs.
+        # - Other reads are public, but a valid token elevates to admin so that
+        #   admin-only fields (e.g., secret) are included in the response.
+        is_admin = False
+        if not un:
+            error, is_admin = authorize_user_scoped_access(
+                request.args, config.JWT_PRIVATE_KEY, user_id)
+            if error is not None: return error
+        elif "user_token" in request.args:
+            error, user_json = decode_user_token(request.args, config.JWT_PRIVATE_KEY, check_if_admin=False)
+            if error is not None: return error
+            is_admin = user_json["client_type"] == 0
         if qn and sn and tn and un and an:
             return try_get_all_answers(is_admin=is_admin)
         elif not qn and sn and tn and un and an:

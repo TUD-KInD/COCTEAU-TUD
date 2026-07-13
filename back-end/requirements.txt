@@ -1,0 +1,49 @@
+# Python dependencies for the back-end, pinned to match install_packages.sh.
+# This stack targets Python 3.9 (the pinned Flask 1.1.2 line does not work on
+# Python 3.10+). See the Dockerfile, which uses python:3.9-slim.
+
+# --- Flask server ---
+flask==1.1.2
+flask-sqlalchemy==2.5.1
+flask-migrate==2.7.0
+flask-marshmallow==0.14.0
+marshmallow-sqlalchemy==0.24.2
+flask-cors==3.0.10
+marshmallow_enum==1.5.1
+jinja2==2.11.3
+markupsafe==1.1.1
+itsdangerous==1.1.0
+werkzeug==1.0.1
+
+# --- Pinned transitive dependencies ---
+# These are not pinned in install_packages.sh, but their newer major versions
+# are incompatible with the pinned Flask 1.1.2 stack, so we pin them explicitly
+# to keep the build reproducible.
+click==7.1.2            # Flask 1.1.2 CLI (flask db upgrade) breaks with click 8.x
+SQLAlchemy==1.4.46      # flask-sqlalchemy 2.5.1 is incompatible with SQLAlchemy 2.x
+marshmallow==3.14.1     # compatible with flask-marshmallow 0.14.0 / marshmallow_enum
+alembic==1.7.7          # migration engine used by flask-migrate 2.7.0
+
+# --- Testing ---
+flask-testing==0.8.1
+
+# --- Database driver ---
+# Bumped from install_packages.sh's 2.8.6, which has no arm64 wheel (and would
+# require compiling against libpq). 2.9.x ships wheels for x86_64 and arm64 and
+# is compatible with SQLAlchemy 1.4.
+psycopg2-binary==2.9.10
+
+# --- Google Sign-In API (pulls in google-auth for id_token verification) ---
+google-api-python-client==2.9.0
+
+# --- JSON Web Token ---
+pyjwt==2.1.0
+
+# --- Analysis (used only by the standalone get_prolific_data.py script) ---
+# Pin numpy to a 1.x release; pandas 1.4.1 is built against numpy 1.x and
+# breaks under numpy 2.0's changed ABI.
+numpy==1.22.4
+pandas==1.4.1
+
+# --- WSGI application server ---
+uwsgi==2.0.19

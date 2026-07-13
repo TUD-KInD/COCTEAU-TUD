@@ -45,6 +45,8 @@
         // developement back-end
         gid = "G-RLW6E1SGDN";
       }
+      // Note: the kind.io.tudelft.nl host intentionally has no measurement ID;
+      // it runs analytics-free (see loadGoogleTracker for the fallback).
       return gid;
     }
 
@@ -73,6 +75,18 @@
      * @private
      */
     function loadGoogleTracker() {
+      // Google Analytics is not configured for every host (e.g.,
+      // kind.io.tudelft.nl runs analytics-free). When no measurement ID is
+      // available, skip loading the tracker and fall back to the locally
+      // created client ID, still firing the ready event for anonymous login.
+      if (typeof GA_MEASUREMENT_ID === "undefined") {
+        console.log("Google Analytics is not configured for this host; using a locally created client ID.");
+        if (!isReadyEventCalled) {
+          if (typeof ready === "function") ready(thisObj);
+          isReadyEventCalled = true;
+        }
+        return;
+      }
       // The resolve function of the Promise
       var resolve = function () {
         initGoogleTracker();

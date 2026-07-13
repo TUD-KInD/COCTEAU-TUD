@@ -64,6 +64,13 @@
       $guestButton.on("click", function () {
         $accountDialog.dialog("close");
       });
+      if (!isGoogleSignInEnabled()) {
+        // Anonymous-only host: hide the Google Sign-In/Sign-Out UI and let
+        // users continue as guest. The Google library is not loaded here.
+        $googleSignInButton.hide();
+        $googleSignOutButton.hide();
+        return;
+      }
       renderGoogleSignInButton();
       // Check if use signed in with Google before
       var isGoogleTokenStored = sessionStorage.getItem("isGoogleTokenStored");
@@ -93,7 +100,18 @@
         // developement back-end
         gid = "878004336244-j1s2d006vt99evg8k92oiu8gegoiah9h.apps.googleusercontent.com";
       }
+      // Note: the kind.io.tudelft.nl host intentionally has no client ID; it
+      // runs anonymous-only (guest) until Google Sign-In is configured there.
       return gid;
+    }
+
+    /**
+     * Whether Google Sign-In is configured (has a client ID) for this host.
+     * @private
+     * @returns {boolean} - true when a Google Sign-In client ID is available.
+     */
+    function isGoogleSignInEnabled() {
+      return typeof getGoogleSignInClientId() !== "undefined";
     }
 
     /**
@@ -258,6 +276,15 @@
      * @private
      */
     function loadGoogleSignInAPI() {
+      // When Google Sign-In is not configured for this host (e.g.,
+      // kind.io.tudelft.nl runs anonymous-only), skip loading the Google
+      // library and initialize the UI for guest usage only, so the account
+      // object still becomes ready and anonymous login continues to work.
+      if (!isGoogleSignInEnabled()) {
+        initUI();
+        ready(thisObj);
+        return;
+      }
       window.onGoogleLibraryLoad = function () {
         google.accounts.id.initialize({
           "client_id": getGoogleSignInClientId(),

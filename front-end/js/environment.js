@@ -159,6 +159,10 @@
       } else if (urlHostName.indexOf("staging") !== -1) {
         // staging back-end
         url = "https://staging.api.periscope.io.tudelft.nl";
+      } else if (urlHostName.indexOf("kind.io.tudelft.nl") !== -1) {
+        // production back-end on the kind.io host, served under the /periscope
+        // path prefix behind the reverse proxy (same origin as the front-end)
+        url = window.location.origin + "/periscope/api";
       } else if (urlHostName.indexOf("periscope.io.tudelft.nl") !== -1) {
         // production back-end
         url = "https://api.periscope.io.tudelft.nl";
@@ -853,7 +857,11 @@
      * @param {function} [error] - callback function when the operation is failing.
      */
     this.getVisionByUserId = function (userId, success, error) {
-      return generalGet("/vision/?paginate=0&user_id=" + userId, success, error);
+      var path = "/vision/?paginate=0&user_id=" + userId;
+      if (typeof userToken !== "undefined") {
+        path += "&user_token=" + userToken;
+      }
+      return generalGet(path, success, error);
     };
 
     /**
@@ -1166,7 +1174,11 @@
      * @param {function} [error] - callback function when the operation is failing.
      */
     this.getAllGame = function (success, error) {
-      return generalGet("/game/", success, error);
+      var path = "/game/";
+      if (typeof userToken !== "undefined") {
+        path += "?user_token=" + userToken;
+      }
+      return generalGet(path, success, error);
     };
 
     /**
@@ -1177,7 +1189,11 @@
      * @param {function} [error] - callback function when the operation is failing.
      */
     this.getGameByUserId = function (userId, success, error) {
-      return generalGet("/game/?user_id=" + userId, success, error);
+      var path = "/game/?user_id=" + userId;
+      if (typeof userToken !== "undefined") {
+        path += "&user_token=" + userToken;
+      }
+      return generalGet(path, success, error);
     };
 
     /**
@@ -1188,7 +1204,11 @@
      * @param {function} [error] - callback function when the operation is failing.
      */
     this.getGameByVisionId = function (visionId, success, error) {
-      return generalGet("/game/?vision_id=" + visionId, success, error);
+      var path = "/game/?vision_id=" + visionId;
+      if (typeof userToken !== "undefined") {
+        path += "&user_token=" + userToken;
+      }
+      return generalGet(path, success, error);
     };
 
     /**
@@ -1199,7 +1219,11 @@
      * @param {function} [error] - callback function when the operation is failing.
      */
     this.getGameById = function (gameId, success, error) {
-      return generalGet("/game/?game_id=" + gameId, success, error);
+      var path = "/game/?game_id=" + gameId;
+      if (typeof userToken !== "undefined") {
+        path += "&user_token=" + userToken;
+      }
+      return generalGet(path, success, error);
     };
 
     /**

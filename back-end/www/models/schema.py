@@ -111,11 +111,17 @@ visions_mood_schema = VisionMoodSchema(many=True)
 
 
 class AnswerSchema(ma.Schema):
-    """The schema for the Answer table, used for jsonify."""
+    """The schema for the Answer table, used for jsonify.
+
+    Note: user_id is deliberately omitted from this public schema to avoid
+    leaking which user authored each answer (a user enumeration vector on the
+    public per-scenario/topic/question answer lists). Admin responses use
+    AnswerAdminSchema below, which includes user_id.
+    """
     choices = ma.Nested(choices_schema)
     class Meta:
         model = Answer
-        fields = ("id", "text", "user_id", "question_id", "choices")
+        fields = ("id", "text", "question_id", "choices")
 answer_schema = AnswerSchema()
 answers_schema = AnswerSchema(many=True)
 

@@ -8,6 +8,7 @@ from flask import make_response
 from util.util import InvalidUsage
 from util.util import handle_invalid_usage
 from util.util import decode_user_token
+from util.util import authorize_user_scoped_access
 from util.util import try_wrap_response
 from util.util import decode_jwt
 from config.config import config
@@ -99,6 +100,15 @@ def vision():
         sn = scenario_id is None
         un = user_id is None
         vn = vision_id is None
+        # Authorization: user-scoped reads (user_id present) require a valid
+        # token belonging to that user or to an admin. This closes the user
+        # enumeration / IDOR hole where anyone could read another user's visions
+        # by guessing sequential user IDs. Public reads (all visions, by
+        # scenario, or by vision ID) stay open.
+        if not un:
+            error, _ = authorize_user_scoped_access(
+                request.args, config.JWT_PRIVATE_KEY, user_id)
+            if error is not None: return error
         if sn and un and vn:
             return try_get_all_visions(paginate=paginate,
                     order=order, page_number=page_number, page_size=page_size)

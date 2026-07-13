@@ -128,6 +128,44 @@ def decode_user_token(request_json, private_key, check_if_admin=True):
     return (None, user_json)
 
 
+def authorize_user_scoped_access(request_args, private_key, target_user_id):
+    """
+    Authorize read access to data that is scoped to a specific user.
+
+    Access is granted only when the request carries a valid user_token whose
+    user_id matches target_user_id, or when the token belongs to an admin
+    (client_type == 0). This prevents unauthenticated user enumeration and
+    IDOR (Insecure Direct Object Reference) on user-scoped read endpoints,
+    where iterating over sequential user_id values would otherwise reveal
+    which users exist and expose their data.
+
+    Parameters
+    ----------
+    request_args : dict
+        The request arguments (e.g., request.args) that must contain user_token.
+    private_key : str
+        The private key to decode the JWT.
+    target_user_id : int or str
+        The user_id whose data is being requested.
+
+    Returns
+    -------
+    error : InvalidUsage response or None
+        None when access is authorized; an error response otherwise.
+    is_admin : bool
+        True when the requester is an admin, False otherwise.
+    """
+    error, user_json = decode_user_token(request_args, private_key, check_if_admin=False)
+    if error is not None:
+        return (error, False)
+    is_admin = user_json["client_type"] == 0
+    # Compare as strings because user_id from query parameters arrives as a string
+    if not is_admin and str(user_json["user_id"]) != str(target_user_id):
+        e = InvalidUsage("Permission denied.", status_code=403)
+        return (handle_invalid_usage(e), False)
+    return (None, is_admin)
+
+
 def try_wrap_response(func, status_code=400):
     """A decorator that wraps the try-except logic to handle errors."""
     def inner_function(*args, **kwargs):

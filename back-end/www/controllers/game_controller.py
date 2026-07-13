@@ -65,7 +65,13 @@ def game():
     rj = request.json
 
     # Sanity and permission check
-    # (POST, PATCH, and DELETE methods are for administrators only)
+    # GET operations expose the user_id behind each game and are only used by
+    # the admin dashboard, so they require an admin token. This prevents
+    # unauthenticated user enumeration via the user_id query parameter.
+    if request.method == "GET":
+        error, _ = decode_user_token(request.args, config.JWT_PRIVATE_KEY, check_if_admin=True)
+        if error is not None: return error
+    # (DELETE is for administrators only)
     if request.method in ["DELETE"]:
         error, _ = decode_user_token(rj, config.JWT_PRIVATE_KEY, check_if_admin=True)
         if error is not None: return error

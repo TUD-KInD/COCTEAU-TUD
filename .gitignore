@@ -8,3 +8,6 @@
 **/secret/
 *.sql
 back-end/www/*.csv
+
+# Docker deployment: local env file with the DB password
+.env

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from os.path import abspath, join, dirname
 
@@ -38,5 +39,14 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = Path(join(secret_dir, "db_url_testing")).read_text().strip()
 
 
-config = StagingConfig() # for staging
-#config = ProductionConfig() # for production
+# Select the active configuration via the APP_CONFIG environment variable.
+# Defaults to "staging" to preserve the previous local development behavior.
+# The Docker deployment sets APP_CONFIG=production.
+_config_by_name = {
+    "production": ProductionConfig,
+    "staging": StagingConfig,
+    "development": DevelopmentConfig,
+    "testing": TestingConfig,
+}
+_active_config = os.environ.get("APP_CONFIG", "staging").strip().lower()
+config = _config_by_name.get(_active_config, StagingConfig)()

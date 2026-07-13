@@ -153,16 +153,20 @@
     var getApiRootUrl = function () {
       var urlHostName = window.location.hostname;
       var url;
+      // When the app is served under the /periscope/ path prefix (the Docker
+      // deployment: kind.io.tudelft.nl behind the reverse proxy, or a local
+      // container on e.g. localhost:8080), the back-end is on the SAME origin
+      // under /periscope/api. This takes precedence over the hostname checks
+      // below so both production and local container testing work.
+      if (window.location.pathname.indexOf("/periscope/") === 0) {
+        return window.location.origin + "/periscope/api";
+      }
       if (urlHostName.indexOf("145.38.198.35") !== -1) {
         // staging back-end
         url = "http://145.38.198.35/api";
       } else if (urlHostName.indexOf("staging") !== -1) {
         // staging back-end
         url = "https://staging.api.periscope.io.tudelft.nl";
-      } else if (urlHostName.indexOf("kind.io.tudelft.nl") !== -1) {
-        // production back-end on the kind.io host, served under the /periscope
-        // path prefix behind the reverse proxy (same origin as the front-end)
-        url = window.location.origin + "/periscope/api";
       } else if (urlHostName.indexOf("periscope.io.tudelft.nl") !== -1) {
         // production back-end
         url = "https://api.periscope.io.tudelft.nl";

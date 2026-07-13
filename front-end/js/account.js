@@ -87,6 +87,11 @@
     function getGoogleSignInClientId() {
       var urlHostName = window.location.hostname;
       var gid;
+      // The /periscope/ Docker deployment (kind.io or a local container) runs
+      // anonymous-only: no Google Sign-In client ID configured for this host.
+      if (window.location.pathname.indexOf("/periscope/") === 0) {
+        return undefined;
+      }
       if (urlHostName.indexOf("145.38.198.35") !== -1) {
         // staging back-end
         gid = "878004336244-j1s2d006vt99evg8k92oiu8gegoiah9h.apps.googleusercontent.com";

@@ -32,6 +32,11 @@
     function getGoogleAnalyticsId() {
       var urlHostName = window.location.hostname;
       var gid;
+      // The /periscope/ Docker deployment (kind.io or a local container) runs
+      // analytics-free: no Google Analytics measurement ID for this host.
+      if (window.location.pathname.indexOf("/periscope/") === 0) {
+        return undefined;
+      }
       if (urlHostName.indexOf("145.38.198.35") !== -1) {
         // staging back-end
         gid = "G-RLW6E1SGDN";

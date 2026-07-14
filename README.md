@@ -1,5 +1,5 @@
 # periscope-public-engagement-tool
-Demo: http://periscope.io.tudelft.nl/
+Demo: [https://kind.io.tudelft.nl/periscope/](https://kind.io.tudelft.nl/periscope/)
 
 This repository hosts code of a tool to engage citizens in participatory decision-making, developed by the Knowledge and Intelligence Design (KInD) research group in the Department of Sustainable Design Engineering, Faculty of Industrial Design Engineering, [Technische Universiteit Delft](https://www.tudelft.nl/en/).
 
